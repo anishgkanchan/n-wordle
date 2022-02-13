@@ -18,7 +18,6 @@ class App extends Component {
     this.grey = '#C0CED5'
     this.green = '#20B2AA'
     this.yellow = '#F1C359'
-    //this.white = '#FFFFFF'
     this.colorRules = {}
   }
 
@@ -33,7 +32,7 @@ class App extends Component {
     this.inputElements[this.count].focus()
   }
 
-  //This is for virtual keyboard events
+  // This is for virtual keyboard events
   onKeyReleased = (button) => {
     console.log(
       'onKeyReleased called',
@@ -42,15 +41,15 @@ class App extends Component {
     )
     if (button === '{bksp}') {
       console.log('bksp is pressed')
-      if (this.inputElements[this.count].value == '' && this.count > 0) {
+      if (this.inputElements[this.count].value === '' && this.count > 0) {
         this.count -= 1
       }
       this.inputElements[this.count].focus()
       this.inputElements[this.count].value = ''
     } else if (
-      button == '{enter}' &&
+      button === '{enter}' &&
       this.count === 4 &&
-      this.inputElements[this.count].value != ''
+      this.inputElements[this.count].value !== ''
     ) {
       console.log('Button pressed', button, this.count)
       console.log(this.inputElements[this.count])
@@ -78,12 +77,12 @@ class App extends Component {
     }
   }
 
-  //This is for physical keyboard events only letters
+  // This is for physical keyboard events only letters
   onChangeInput = (event) => {
     console.log('Entered onChangeInput')
     console.log(event.target.value)
 
-    if (event.target.value != '') {
+    if (event.target.value !== '') {
       if (this.count < 4) this.count += 1
       this.inputElements[this.count].focus()
     } else {
@@ -95,7 +94,7 @@ class App extends Component {
     this.last_char = event.target.value
   }
 
-  //This is for physical keyboard events for enter/bksp/invalid letters
+  // This is for physical keyboard events for enter/bksp/invalid letters
   handleKeyDown = (event) => {
     console.log('Entered handleKeyDown', event, this.count)
     if (
@@ -118,7 +117,7 @@ class App extends Component {
     } else if (
       event.key === 'Enter' &&
       this.count === 4 &&
-      this.inputElements[this.count].value != ''
+      this.inputElements[this.count].value !== ''
     ) {
       console.log('activeRow is updated')
       this.count = 0
@@ -128,106 +127,118 @@ class App extends Component {
       })
     }
   }
-  handleFocusViaCapturing = (event) => {
-    console.log('focus occurred on div', event)
-    event.stopPropagation()
-    return false
-  }
-  handleMouseDownViaCapturing = (event) => {
-    console.log('mouse down occurred on div', event)
-    event.stopPropagation()
-    return false
-  }
-  handleClickViaCapturing = (event) => {
-    console.log('click occurred on div', event)
-    event.stopPropagation()
-    return false
-  }
 
-  handleClick = (event) => {
-    console.log('click occurred on input!', event)
-  }
-  handleMouseDown = (event) => {
-    console.log('mouse down occurred on input!', event)
-  }
-  handleFocus = (event) => {
-    console.log('focus occurred!', event)
-  }
+  // handleFocusViaCapturing = (event) => {
+  //   console.log('focus occurred on div', event)
+  //   event.stopPropagation()
+  //   return false
+  // }
+
+  // handleMouseDownViaCapturing = (event) => {
+  //   console.log('mouse down occurred on div', event)
+  //   event.stopPropagation()
+  //   return false
+  // }
+
+  // handleClickViaCapturing = (event) => {
+  //   console.log('click occurred on div', event)
+  //   event.stopPropagation()
+  //   return false
+  // }
+
+  // handleClick = (event) => {
+  //   console.log('click occurred on input!', event)
+  // }
+
+  // handleMouseDown = (event) => {
+  //   console.log('mouse down occurred on input!', event)
+  // }
+
+  // handleFocus = (event) => {
+  //   console.log('focus occurred!', event)
+  // }
 
   handleBlur = (event) => {
     console.log('blur occurred!', event)
     this.inputElements[this.count].focus()
   }
 
-  onChange = (event) => {
+  onChange = () => {
     console.log('onChange occurred!', this.count)
     this.inputElements[this.count].focus()
   }
 
   processResult() {
-    console.log('reached here', this.state.activeRow)
+    const { activeRow } = this.state
+    console.log('reached here', activeRow)
     this.items.forEach((item) => {
       console.log('checking for ', this.inputElements[item].value)
       if (
         this.inputElements[item].value.toUpperCase() ===
         this.secretWord.charAt(item).toUpperCase()
       ) {
-        this.colorRules['r' + this.state.activeRow + 'c' + item] = this.green
+        this.colorRules[`r${activeRow}c${item}`] = this.green
       } else if (
         this.secretWord.includes(this.inputElements[item].value.toUpperCase())
       ) {
-        this.colorRules['r' + this.state.activeRow + 'c' + item] = this.yellow
+        this.colorRules[`r${activeRow}c${item}`] = this.yellow
       } else {
-        this.colorRules['r' + this.state.activeRow + 'c' + item] = this.grey
+        this.colorRules[`r${activeRow}c${item}`] = this.grey
       }
       console.log(this.colorRules)
     })
   }
 
   renderInput(row, colorRules) {
-    console.log('renderInput called', this.state.isDisabled, colorRules)
-    const a = this.items.map((item) => (
-      <input
-        disabled={this.state.activeRow != row}
-        ref={(input) => {
-          if (this.state.activeRow === row) {
-            this.inputElements[item] = input
-          }
-        }}
-        pointerEvents="none"
-        onChange={this.onChangeInput}
-        onKeyDown={this.handleKeyDown}
-        onMouseDown={this.handleMouseDown}
-        onClick={this.handleClick}
-        onFocus={this.handleFocus}
-        onBlur={this.handleBlur}
-        type="text"
-        maxLength="1"
-        pattern="[a-zA-Z]{1}"
-        style={{
-          fontSize: '20px',
-          caretColor: 'transparent',
-          cursor: 'default',
-          textTransform: 'uppercase',
-          textAlign: 'center',
-          width: '30px',
-          height: '30px',
-          backgroundColor: `${
-            colorRules != null &&
-            colorRules.hasOwnProperty('r' + row + 'c' + item)
-              ? colorRules['r' + row + 'c' + item]
-              : 'white'
-          }`,
-          color: `${this.state.activeRow != row ? 'white' : 'black'}`,
-          fontWeight: 'bold',
-          margin: '2px',
-          padding: '5px',
-        }}
-        name={'Input' + item}
-        id={'r' + row + 'c' + item}
-        key={'r' + row + 'c' + item}
-      />
-    ))
+    const { activeRow, isDisabled } = this.state
+    console.log('renderInput called', isDisabled, colorRules)
+    const a = this.items.map((item) => {
+      return (
+        <input
+          disabled={activeRow !== row}
+          ref={(input) => {
+            if (activeRow === row) {
+              this.inputElements[item] = input
+            }
+          }}
+          pointerEvents="none"
+          onChange={this.onChangeInput}
+          onKeyDown={this.handleKeyDown}
+          onMouseDown={this.handleMouseDown}
+          onClick={this.handleClick}
+          onFocus={this.handleFocus}
+          onBlur={this.handleBlur}
+          type="text"
+          maxLength="1"
+          pattern="[a-zA-Z]{1}"
+          style={{
+            fontSize: '20px',
+            caretColor: 'transparent',
+            cursor: 'default',
+            textTransform: 'uppercase',
+            textAlign: 'center',
+            width: '30px',
+            height: '30px',
+            backgroundColor: `${
+              colorRules != null &&
+              Object.prototype.hasOwnProperty.call(
+                colorRules,
+                `r${row}c${item}`
+              )
+                ? colorRules[`r${row}c${item}`]
+                : 'white'
+            }`,
+            color: `${activeRow !== row ? 'white' : 'black'}`,
+            fontWeight: 'bold',
+            margin: '2px',
+            padding: '5px',
+          }}
+          name={`Input${item}`}
+          id={`r${row}c${item}`}
+          key={`r${row}c${item}`}
+        />
+      )
+    })
     console.log('hello', a)
     console.log(this.inputElements)
     return a
@@ -309,7 +320,9 @@ class App extends Component {
         <br />
         <Keyboard
           style={{ margin: '20px', width: '50%' }}
-          keyboardRef={(r) => (this.state.keyboard_current = r)}
+          keyboardRef={(r) => {
+            this.state.keyboard_current = r
+          }}
           disableCaretPositioning={false}
           onKeyReleased={this.onKeyReleased}
           onChange={this.onChange}
