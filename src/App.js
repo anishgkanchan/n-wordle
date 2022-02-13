@@ -18,7 +18,7 @@ class App extends Component {
     this.grey = '#C0CED5'
     this.green = '#20B2AA'
     this.yellow = '#F1C359'
-    this.white = '#FFFFFF'
+    //this.white = '#FFFFFF'
     this.colorRules = {}
   }
 
@@ -27,29 +27,10 @@ class App extends Component {
     console.log(this.inputElements)
     this.inputElements[this.count].focus()
   }
+
   componentDidUpdate() {
     console.log('componentDidUpdate called', this.inputElements)
     this.inputElements[this.count].focus()
-  }
-
-  processResult() {
-    console.log('reached here', this.state.activeRow)
-    this.items.forEach((item) => {
-      console.log('checking for ', this.inputElements[item].value)
-      if (
-        this.inputElements[item].value.toUpperCase() ===
-        this.secretWord.charAt(item).toUpperCase()
-      ) {
-        this.colorRules['r' + this.state.activeRow + 'c' + item] = this.green
-      } else if (
-        this.secretWord.includes(this.inputElements[item].value.toUpperCase())
-      ) {
-        this.colorRules['r' + this.state.activeRow + 'c' + item] = this.yellow
-      } else {
-        this.colorRules['r' + this.state.activeRow + 'c' + item] = this.grey
-      }
-      console.log(this.colorRules)
-    })
   }
 
   //This is for virtual keyboard events
@@ -181,6 +162,26 @@ class App extends Component {
   onChange = (event) => {
     console.log('onChange occurred!', this.count)
     this.inputElements[this.count].focus()
+  }
+
+  processResult() {
+    console.log('reached here', this.state.activeRow)
+    this.items.forEach((item) => {
+      console.log('checking for ', this.inputElements[item].value)
+      if (
+        this.inputElements[item].value.toUpperCase() ===
+        this.secretWord.charAt(item).toUpperCase()
+      ) {
+        this.colorRules['r' + this.state.activeRow + 'c' + item] = this.green
+      } else if (
+        this.secretWord.includes(this.inputElements[item].value.toUpperCase())
+      ) {
+        this.colorRules['r' + this.state.activeRow + 'c' + item] = this.yellow
+      } else {
+        this.colorRules['r' + this.state.activeRow + 'c' + item] = this.grey
+      }
+      console.log(this.colorRules)
+    })
   }
 
   renderInput(row, colorRules) {
