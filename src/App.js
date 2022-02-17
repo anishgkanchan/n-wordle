@@ -8,7 +8,6 @@ class App extends Component {
   constructor() {
     super()
     this.state = {
-      keyboard_current: '',
       activeRow: { 5: 0, 6: 0, 7: 0 },
       wordLength: 5,
     }
@@ -20,9 +19,50 @@ class App extends Component {
       6: [0, 1, 2, 3, 4, 5],
       7: [0, 1, 2, 3, 4, 5, 6],
     }
+    this.highlightedChars = {
+      green: {},
+      white: {
+        A: 'A',
+        B: 'B',
+        C: 'C',
+        D: 'D',
+        E: 'E',
+        F: 'F',
+        G: 'G',
+        H: 'H',
+        I: 'I',
+        J: 'J',
+        K: 'K',
+        L: 'L',
+        M: 'M',
+        N: 'N',
+        O: 'O',
+        P: 'P',
+        Q: 'Q',
+        R: 'R',
+        S: 'S',
+        T: 'T',
+        U: 'U',
+        V: 'V',
+        W: 'W',
+        X: 'X',
+        Y: 'Y',
+        Z: 'Z',
+        '{bksp}': '{bksp}',
+        '{enter}': '{enter}',
+      },
+      grey: {},
+      yellow: {},
+    }
     this.wordsSubmitted = { 5: [], 6: [], 7: [] }
     this.last_char = ''
-    this.grey = '#C0CED5'
+    this.colors = {
+      green: 'button-default-theme-override-highlight-green',
+      white: 'button-default-theme-override',
+      yellow: 'button-default-theme-override-highlight-yellow',
+      grey: 'button-default-theme-override-highlight-grey',
+    }
+    this.grey = '#AAAAAA'
     this.green = '#20B2AA'
     this.yellow = '#F1C359'
     this.colorRules = {}
@@ -235,35 +275,38 @@ class App extends Component {
         'checking for ',
         this.inputElements[`r${activeRow[wordLength]}c${item}`].value
       )
-      if (
+      const inputChar =
         this.inputElements[
           `r${activeRow[wordLength]}c${item}`
-        ].value.toUpperCase() ===
-        this.secretWord[wordLength].charAt(item).toUpperCase()
+        ].value.toUpperCase()
+      if (
+        inputChar === this.secretWord[wordLength].charAt(item).toUpperCase()
       ) {
         this.colorRules[`w${wordLength}r${activeRow[wordLength]}c${item}`] =
           this.green
-      } else if (
-        this.secretWord[wordLength].includes(
-          this.inputElements[
-            `r${activeRow[wordLength]}c${item}`
-          ].value.toUpperCase()
-        )
-      ) {
+        delete this.highlightedChars.white[inputChar]
+        delete this.highlightedChars.yellow[inputChar]
+        this.highlightedChars.green[inputChar] = inputChar
+      } else if (this.secretWord[wordLength].includes(inputChar)) {
         this.colorRules[`w${wordLength}r${activeRow[wordLength]}c${item}`] =
           this.yellow
+        delete this.highlightedChars.grey[inputChar]
+        delete this.highlightedChars.white[inputChar]
+        this.highlightedChars.yellow[inputChar] = inputChar
       } else {
         this.colorRules[`w${wordLength}r${activeRow[wordLength]}c${item}`] =
           this.grey
+        delete this.highlightedChars.white[inputChar]
+        this.highlightedChars.grey[inputChar] = inputChar
       }
-      console.log(this.colorRules)
+      console.log(this.colorRules, 'highlighted', this.highlightedChars)
     })
   }
 
   renderInput(row, colorRules) {
     const { activeRow, isDisabled, wordLength } = this.state
     console.log('renderInput called', isDisabled, colorRules)
-    const a = this.items[wordLength].map((item) => {
+    const nInputs = this.items[wordLength].map((item) => {
       const word = this.wordsSubmitted[wordLength]
       console.log(
         word.length > row && word[row] !== null ? word[row].charAt(0) : ''
@@ -284,6 +327,7 @@ class App extends Component {
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
           type="text"
+          inputMode="none"
           maxLength="1"
           pattern="[a-zA-Z]{1}"
           style={{
@@ -319,20 +363,50 @@ class App extends Component {
         />
       )
     })
-    console.log('hello', a)
+    console.log('hello', nInputs)
     console.log(this.inputElements)
     console.log('RENDER INPUT CALLED -----------------')
-    return a
+    return nInputs
   }
 
   render() {
-    console.log('render called')
+    console.log('render called', this.highlightedChars)
+
+    const buttonTheme = Object.keys(this.highlightedChars)
+      .filter((color) => {
+        console.log('color is ', color, this.highlightedChars)
+        if (Object.keys(this.highlightedChars[color]).length === 0) {
+          return false // skip
+        }
+        return true
+      })
+      .map((color) => {
+        console.log('please help', color)
+        const characterList = Object.keys(this.highlightedChars[color])
+          .join(' ')
+          .trim()
+        console.log('characterList', characterList)
+
+        return {
+          class: this.colors[color],
+          buttons: `${characterList}`,
+        }
+      })
+    console.log('buttonTheme', buttonTheme)
     return (
-      <div className="App" style={{ margin: 'auto' }}>
-        <h2>N WORDLE</h2>
-        <hr />
-        Choose N
+      <div
+        className="App"
+        style={{
+          margin: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          flexGrow: 1,
+          height: '100vh',
+        }}>
+        <h3>N WORDLE</h3>
         <div>
+          Choose N
           <input
             onChange={this.onChangeSelection}
             defaultChecked
@@ -365,7 +439,11 @@ class App extends Component {
           />
           7
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+          }}>
           <div
             onFocusCapture={this.handleFocusViaCapturing}
             onMouseDownCapture={this.handleMouseDownViaCapturing}
@@ -455,11 +533,16 @@ class App extends Component {
           </div>
         </div>
         <br />
-        <div style={{ margin: 'auto', maxWidth: '500px' }}>
+        <div
+          style={{
+            alignSelf: 'center',
+            width: '100%',
+            maxWidth: '500px',
+          }}>
           <Keyboard
-            keyboardRef={(r) => {
-              this.state.keyboard_current = r
-            }}
+            // keyboardRef={(r) => {
+            //   this.keyboard_current = r
+            // }}
             disableCaretPositioning={false}
             onKeyReleased={this.onKeyReleased}
             onChange={this.onChange}
@@ -472,12 +555,7 @@ class App extends Component {
                 '{enter} Z X C V B N M {bksp}',
               ],
             }}
-            buttonTheme={[
-              {
-                class: 'button-default-theme-override',
-                buttons: 'Q W E R T Y U I O P A S D F G H J K L Z X C V B N M',
-              },
-            ]}
+            buttonTheme={buttonTheme}
             mergeDisplay="true"
             display={{
               '{bksp}': 'delete',

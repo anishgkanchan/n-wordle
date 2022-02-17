@@ -3,5 +3,17 @@
   font-weight: bold;
 }
 .button-default-theme-override {
-  background-color: #000000;
+  background-color: #f2f2f2 !important;
+}
+.button-default-theme-override:active {
+  background-color: #8a8a8a !important;
+}
+.button-default-theme-override-highlight-green {
+  background-color: #20b2aa !important;
+}
+.button-default-theme-override-highlight-yellow {
+  background-color: #f1c359 !important;
+}
+.button-default-theme-override-highlight-grey {
+  background-color: #bbbbbb !important;
 }
