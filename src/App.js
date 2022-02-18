@@ -404,7 +404,6 @@ class App extends Component {
           flexGrow: 1,
           height: '100vh',
         }}>
-        <h3>N WORDLE</h3>
         <div>
           Choose N
           <input
