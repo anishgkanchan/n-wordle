@@ -402,8 +402,11 @@ class App extends Component {
           flexDirection: 'column',
           justifyContent: 'space-between',
           flexGrow: 1,
-          height: 'calc(100vh - 3px)',
+          height: '100vh',
+          border: '3px',
+          boxSizing: 'border-box',
         }}>
+        <h3>N WORDLE</h3>
         <div>
           Choose N
           <input
