@@ -402,8 +402,9 @@ class App extends Component {
           flexDirection: 'column',
           justifyContent: 'space-between',
           flexGrow: 1,
-          height: '100vh',
-          maxHeight: '-webkit-fill-available',
+          position: 'fixed',
+          width: '100%',
+          height: '100%',
         }}>
         <h3>N WORDLE</h3>
         <div>
