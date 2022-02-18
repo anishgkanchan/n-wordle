@@ -403,8 +403,7 @@ class App extends Component {
           justifyContent: 'space-between',
           flexGrow: 1,
           height: '100vh',
-          border: '3px',
-          boxSizing: 'border-box',
+          maxHeight: '-webkit-fill-available',
         }}>
         <h3>N WORDLE</h3>
         <div>
