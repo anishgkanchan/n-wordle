@@ -532,7 +532,6 @@ class App extends Component {
             {this.renderInput(5, this.colorRules)}
           </div>
         </div>
-        <br />
         <div
           style={{
             alignSelf: 'center',
