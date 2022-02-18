@@ -456,7 +456,7 @@ class App extends Component {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#79DC78',
-              padding: '10px',
+              padding: '5px',
             }}
             id="d1">
             {this.renderInput(0, this.colorRules)}
@@ -470,7 +470,7 @@ class App extends Component {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#BFEF88',
-              padding: '10px',
+              padding: '5px',
             }}
             id="d2">
             {this.renderInput(1, this.colorRules)}
@@ -484,7 +484,7 @@ class App extends Component {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#FFED7F',
-              padding: '10px',
+              padding: '5px',
             }}
             id="d3">
             {this.renderInput(2, this.colorRules)}
@@ -498,7 +498,7 @@ class App extends Component {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#FFBF7F',
-              padding: '10px',
+              padding: '5px',
             }}
             id="d4">
             {this.renderInput(3, this.colorRules)}
@@ -512,7 +512,7 @@ class App extends Component {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#FF6666',
-              padding: '10px',
+              padding: '5px',
             }}
             id="d5">
             {this.renderInput(4, this.colorRules)}
@@ -526,7 +526,7 @@ class App extends Component {
               alignItems: 'center',
               justifyContent: 'center',
               backgroundColor: '#A80900',
-              padding: '10px',
+              padding: '5px',
             }}
             id="d6">
             {this.renderInput(5, this.colorRules)}
