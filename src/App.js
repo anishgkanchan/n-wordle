@@ -19,6 +19,21 @@ class App extends Component {
       6: [0, 1, 2, 3, 4, 5],
       7: [0, 1, 2, 3, 4, 5, 6],
     }
+    this.rowCount = {
+      5: [0, 1, 2, 3, 4, 5],
+      6: [0, 1, 2, 3, 4, 5, 6],
+      7: [0, 1, 2, 3, 4, 5, 6, 7],
+    }
+    this.rowBackgroundColor = {
+      0: '#79DC78',
+      1: '#79DC78',
+      2: '#BFEF88',
+      3: '#FFED7F',
+      4: '#FFBF7F',
+      5: '#FF6666',
+      6: '#A80900',
+      7: '#A80900',
+    }
     this.highlightedChars = {
       green: {},
       white: {
@@ -370,29 +385,8 @@ class App extends Component {
   }
 
   render() {
-    console.log('render called', this.highlightedChars)
-
-    const buttonTheme = Object.keys(this.highlightedChars)
-      .filter((color) => {
-        console.log('color is ', color, this.highlightedChars)
-        if (Object.keys(this.highlightedChars[color]).length === 0) {
-          return false // skip
-        }
-        return true
-      })
-      .map((color) => {
-        console.log('please help', color)
-        const characterList = Object.keys(this.highlightedChars[color])
-          .join(' ')
-          .trim()
-        console.log('characterList', characterList)
-
-        return {
-          class: this.colors[color],
-          buttons: `${characterList}`,
-        }
-      })
-    console.log('buttonTheme', buttonTheme)
+    const { wordLength } = this.state
+    console.log('render called', this.highlightedChars, this.rowCount)
     return (
       <div
         className="App"
@@ -446,93 +440,28 @@ class App extends Component {
             display: 'flex',
             flexDirection: 'column',
           }}>
-          <div
-            onFocusCapture={this.handleFocusViaCapturing}
-            onMouseDownCapture={this.handleMouseDownViaCapturing}
-            onClickCapture={this.handleClickViaCapturing}
-            style={{
-              pointerEvents: 'none',
-              margin: '0 auto',
-              display: 'flex',
-              height: '50px',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#79DC78',
-              padding: '5px',
-            }}
-            id="d1">
-            {this.renderInput(0, this.colorRules)}
-          </div>
-          <div
-            style={{
-              pointerEvents: 'none',
-              margin: '0 auto',
-              display: 'flex',
-              height: '50px',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#BFEF88',
-              padding: '5px',
-            }}
-            id="d2">
-            {this.renderInput(1, this.colorRules)}
-          </div>
-          <div
-            style={{
-              pointerEvents: 'none',
-              margin: '0 auto',
-              display: 'flex',
-              height: '50px',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#FFED7F',
-              padding: '5px',
-            }}
-            id="d3">
-            {this.renderInput(2, this.colorRules)}
-          </div>
-          <div
-            style={{
-              pointerEvents: 'none',
-              margin: '0 auto',
-              display: 'flex',
-              height: '50px',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#FFBF7F',
-              padding: '5px',
-            }}
-            id="d4">
-            {this.renderInput(3, this.colorRules)}
-          </div>
-          <div
-            style={{
-              pointerEvents: 'none',
-              margin: '0 auto',
-              display: 'flex',
-              height: '50px',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#FF6666',
-              padding: '5px',
-            }}
-            id="d5">
-            {this.renderInput(4, this.colorRules)}
-          </div>
-          <div
-            style={{
-              pointerEvents: 'none',
-              margin: '0 auto',
-              display: 'flex',
-              height: '50px',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#A80900',
-              padding: '5px',
-            }}
-            id="d6">
-            {this.renderInput(5, this.colorRules)}
-          </div>
+          {this.rowCount[wordLength].map((index) => {
+            const rowColor = this.rowBackgroundColor[index]
+            return (
+              <div
+                onFocusCapture={this.handleFocusViaCapturing}
+                onMouseDownCapture={this.handleMouseDownViaCapturing}
+                onClickCapture={this.handleClickViaCapturing}
+                style={{
+                  pointerEvents: 'none',
+                  margin: '0 auto',
+                  display: 'flex',
+                  height: '50px',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: `${rowColor}`,
+                  padding: '5px',
+                }}
+                id="d1">
+                {this.renderInput(index, this.colorRules)}
+              </div>
+            )
+          })}
         </div>
         <div
           style={{
@@ -556,7 +485,25 @@ class App extends Component {
                 '{enter} Z X C V B N M {bksp}',
               ],
             }}
-            buttonTheme={buttonTheme}
+            buttonTheme={Object.keys(this.highlightedChars)
+              .filter((color) => {
+                console.log('color is ', color, this.highlightedChars)
+                if (Object.keys(this.highlightedChars[color]).length === 0) {
+                  return false // skip
+                }
+                return true
+              })
+              .map((color) => {
+                console.log('please help', color)
+                const characterList = Object.keys(this.highlightedChars[color])
+                  .join(' ')
+                  .trim()
+                console.log('characterList', characterList)
+                return {
+                  class: this.colors[color],
+                  buttons: `${characterList}`,
+                }
+              })}
             mergeDisplay="true"
             display={{
               '{bksp}': 'delete',
