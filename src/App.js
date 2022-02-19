@@ -436,9 +436,13 @@ class App extends Component {
           7
         </div>
         <div
+          className="row-container"
           style={{
             display: 'flex',
             flexDirection: 'column',
+            overflowX: 'hidden',
+            overflowY: 'auto',
+            maxHeight: '65%',
           }}>
           {this.rowCount[wordLength].map((index) => {
             const rowColor = this.rowBackgroundColor[index]
