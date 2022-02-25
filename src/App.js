@@ -3,6 +3,12 @@ import React, { Component } from 'react'
 import Keyboard from 'react-simple-keyboard'
 import 'react-simple-keyboard/build/css/index.css'
 import './keyboardTheme.css'
+import {
+  allFiveLetterWords,
+  allSixLetterWords,
+  allSevenLetterWords,
+} from './WordConstants'
+import isValidWord from './AppUtils'
 
 class App extends Component {
   constructor() {
@@ -10,10 +16,28 @@ class App extends Component {
     this.state = {
       activeRow: { 5: 0, 6: 0, 7: 0 },
       wordLength: 5,
+      showAlert: false,
+      solved: {
+        5: false,
+        6: false,
+        7: false,
+      },
     }
-    this.secretWord = { 5: 'PIOUS', 6: 'SMARTY', 7: 'BRISTLE' }
+    this.secretWord = {
+      5: allFiveLetterWords[
+        Math.floor(Math.random() * allFiveLetterWords.length)
+      ],
+      6: allSixLetterWords[
+        Math.floor(Math.random() * allSixLetterWords.length)
+      ],
+      7: allSevenLetterWords[
+        Math.floor(Math.random() * allSevenLetterWords.length)
+      ],
+    }
+    console.log(this.secretWord, 'poop')
     this.inputElements = {}
     this.count = 0
+    this.alertText = ''
     this.items = {
       5: [0, 1, 2, 3, 4],
       6: [0, 1, 2, 3, 4, 5],
@@ -24,6 +48,7 @@ class App extends Component {
       6: [0, 1, 2, 3, 4, 5, 6],
       7: [0, 1, 2, 3, 4, 5, 6, 7],
     }
+
     this.rowBackgroundColor = {
       0: '#79DC78',
       1: '#79DC78',
@@ -87,18 +112,22 @@ class App extends Component {
     const { activeRow, wordLength } = this.state
     console.log('componentDidMount called')
     console.log(this.inputElements)
-    this.inputElements[`r${activeRow[wordLength]}c${this.count}`].focus()
+    if (activeRow[wordLength] < this.rowCount[wordLength].length) {
+      this.inputElements[`r${activeRow[wordLength]}c${this.count}`].focus()
+    }
   }
 
   componentDidUpdate() {
     const { activeRow, wordLength } = this.state
     console.log('componentDidUpdate called', this.inputElements)
-    this.inputElements[`r${activeRow[wordLength]}c${this.count}`].focus()
+    if (activeRow[wordLength] < this.rowCount[wordLength].length) {
+      this.inputElements[`r${activeRow[wordLength]}c${this.count}`].focus()
+    }
   }
 
   // This is for virtual keyboard events
   onKeyReleased = (button) => {
-    const { wordLength, activeRow } = this.state
+    const { wordLength, activeRow, solved } = this.state
     console.log(
       'onKeyReleased called',
       button,
@@ -123,19 +152,62 @@ class App extends Component {
       console.log('Button pressed', button, this.count)
       console.log(this.inputElements[`r${activeRow[wordLength]}c${this.count}`])
       this.count = 0
-      this.wordsSubmitted[wordLength].push(
-        this.items[wordLength]
-          .map(
-            (item) =>
-              this.inputElements[`r${activeRow[wordLength]}c${item}`].value
+
+      const wordEntered = this.items[wordLength]
+        .map(
+          (item) =>
+            this.inputElements[`r${activeRow[wordLength]}c${item}`].value
+        )
+        .join('')
+
+      if (isValidWord(wordEntered, wordLength)) {
+        console.log('activeRow is updated')
+        this.count = 0
+        this.wordsSubmitted[wordLength].push(wordEntered)
+        this.processResult()
+        const newActiveRow = { ...activeRow }
+        newActiveRow[wordLength] += 1
+        console.log(
+          'wordEntered',
+          wordEntered,
+          this.secretWord[wordLength],
+          'poop'
+        )
+        if (wordEntered.toLowerCase() === this.secretWord[wordLength]) {
+          console.log('Congratulations, good job!', 'poop')
+          const newSolved = { ...solved }
+          newSolved[wordLength] = true
+          this.alertText = 'Congratulations, good job!'
+          this.setState(
+            { activeRow: newActiveRow, showAlert: true, solved: newSolved },
+            () => {
+              setTimeout(() => {
+                this.setState({
+                  showAlert: false,
+                })
+              }, 2000)
+            }
           )
-          .join('')
-      )
-      this.processResult()
-      const newActiveRow = { ...activeRow }
-      newActiveRow[wordLength] += 1
-      this.setState({ activeRow: newActiveRow })
-      console.log('count after press', this.count)
+        } else {
+          this.setState({ activeRow: newActiveRow })
+        }
+      } else {
+        console.log("word doesn't exist", wordEntered, 'poop')
+        this.alertText = 'Word not found!'
+        this.count = 0
+        this.setState(
+          {
+            showAlert: true,
+          },
+          () => {
+            setTimeout(() => {
+              this.setState({
+                showAlert: false,
+              })
+            }, 2000)
+          }
+        )
+      }
     } else if (
       (button.charCodeAt(0) >= 'a'.charCodeAt(0) &&
         button.charCodeAt(0) <= 'z'.charCodeAt(0)) ||
@@ -174,8 +246,9 @@ class App extends Component {
 
   // This is for physical keyboard events for enter/bksp/invalid letters
   handleKeyDown = (event) => {
-    const { wordLength, activeRow } = this.state
-    console.log('Entered handleKeyDown', event, this.count)
+    const { wordLength, activeRow, showAlert, solved } = this.state
+    console.log('Entered handleKeyDown', event, this.count, showAlert)
+    // this.alertText = ''
     if (
       !(
         (event.keyCode >= 'a'.charCodeAt(0) &&
@@ -198,20 +271,57 @@ class App extends Component {
       this.count === wordLength - 1 &&
       this.inputElements[`r${activeRow[wordLength]}c${this.count}`].value !== ''
     ) {
-      console.log('activeRow is updated')
-      this.count = 0
-      this.wordsSubmitted[wordLength].push(
-        this.items[wordLength]
-          .map(
-            (item) =>
-              this.inputElements[`r${activeRow[wordLength]}c${item}`].value
+      const wordEntered = this.items[wordLength]
+        .map(
+          (item) =>
+            this.inputElements[`r${activeRow[wordLength]}c${item}`].value
+        )
+        .join('')
+
+      if (isValidWord(wordEntered, wordLength)) {
+        console.log('activeRow is updated')
+        this.count = 0
+        this.wordsSubmitted[wordLength].push(wordEntered)
+        this.processResult()
+        const newActiveRow = { ...activeRow }
+        newActiveRow[wordLength] += 1
+
+        if (wordEntered.toLowerCase() === this.secretWord[wordLength]) {
+          console.log('Congratulations, good job!', 'poop')
+
+          const newSolved = { ...solved }
+          newSolved[wordLength] = true
+          this.alertText = 'Congratulations, good job!'
+          this.setState(
+            { activeRow: newActiveRow, showAlert: true, solved: newSolved },
+            () => {
+              setTimeout(() => {
+                this.setState({
+                  showAlert: false,
+                })
+              }, 2000)
+            }
           )
-          .join('')
-      )
-      this.processResult()
-      const newActiveRow = { ...activeRow }
-      newActiveRow[wordLength] += 1
-      this.setState({ activeRow: newActiveRow })
+        } else {
+          this.setState({ activeRow: newActiveRow })
+        }
+      } else {
+        console.log("word doesn't exist", wordEntered, 'poop')
+        this.alertText = 'Word not found!'
+        this.count = 0
+        this.setState(
+          {
+            showAlert: true,
+          },
+          () => {
+            setTimeout(() => {
+              this.setState({
+                showAlert: false,
+              })
+            }, 2000)
+          }
+        )
+      }
     }
   }
 
@@ -302,7 +412,11 @@ class App extends Component {
         delete this.highlightedChars.white[inputChar]
         delete this.highlightedChars.yellow[inputChar]
         this.highlightedChars.green[inputChar] = inputChar
-      } else if (this.secretWord[wordLength].includes(inputChar)) {
+      } else if (
+        this.secretWord[wordLength]
+          .toUpperCase()
+          .includes(inputChar.toUpperCase())
+      ) {
         this.colorRules[`w${wordLength}r${activeRow[wordLength]}c${item}`] =
           this.yellow
         delete this.highlightedChars.grey[inputChar]
@@ -319,7 +433,7 @@ class App extends Component {
   }
 
   renderInput(row, colorRules) {
-    const { activeRow, isDisabled, wordLength } = this.state
+    const { activeRow, isDisabled, wordLength, solved } = this.state
     console.log('renderInput called', isDisabled, colorRules)
     const nInputs = this.items[wordLength].map((item) => {
       const word = this.wordsSubmitted[wordLength]
@@ -328,9 +442,10 @@ class App extends Component {
       )
       console.log('wordsSubmitted is ', this.wordsSubmitted)
       console.log('word is ', wordLength, word, word[row], row)
+
       return (
         <input
-          disabled={activeRow[wordLength] !== row}
+          disabled={solved[wordLength] ? true : activeRow[wordLength] !== row}
           ref={(input) => {
             this.inputElements[`r${row}c${item}`] = input
           }}
@@ -385,8 +500,16 @@ class App extends Component {
   }
 
   render() {
-    const { wordLength } = this.state
-    console.log('render called', this.highlightedChars, this.rowCount)
+    const { wordLength, showAlert } = this.state
+    console.log(
+      'render called',
+      this.highlightedChars,
+      this.rowCount,
+      allFiveLetterWords[0],
+      allSixLetterWords[0],
+      allSevenLetterWords[0],
+      this.secretWord
+    )
     return (
       <div
         className="App"
@@ -467,6 +590,26 @@ class App extends Component {
             )
           })}
         </div>
+        {showAlert ? (
+          <div
+            style={{
+              fontWeight: 'bold',
+              borderRadius: '10px',
+              padding: '20px',
+              backgroundColor: 'black',
+              color: 'white',
+              minWidth: '100px',
+              position: 'fixed',
+              left: '50%',
+              top: '30%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              transform: 'translate(-50%, 0)',
+            }}>
+            {this.alertText}
+          </div>
+        ) : null}
         <div
           style={{
             alignSelf: 'center',
@@ -474,9 +617,6 @@ class App extends Component {
             maxWidth: '500px',
           }}>
           <Keyboard
-            // keyboardRef={(r) => {
-            //   this.keyboard_current = r
-            // }}
             disableCaretPositioning={false}
             onKeyReleased={this.onKeyReleased}
             onChange={this.onChange}
